@@ -107,9 +107,9 @@ header{display:flex;align-items:center;justify-content:space-between;gap:12px}
 .sheet-head h3{margin:0;font-family:var(--display);font-weight:800;font-size:26px;text-transform:uppercase;line-height:1}
 .x{flex:none;width:36px;height:36px;border-radius:50%;border:1px solid var(--line);background:var(--surface-2)}
 .sheet-body{overflow:auto;padding:16px;display:flex;flex-direction:column;gap:14px}
-.gallery{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;border-radius:10px;scrollbar-width:none;background:var(--photo)}
+.gallery{flex:none;display:flex;overflow-x:auto;scroll-snap-type:x mandatory;border-radius:10px;scrollbar-width:none;background:var(--photo)}
 .gallery::-webkit-scrollbar{display:none}
-.gallery figure{flex:0 0 100%;width:100%;margin:0;scroll-snap-align:start;aspect-ratio:16/10;max-width:100%;position:relative;overflow:hidden}
+.gallery figure{flex:0 0 100%;width:100%;margin:0;scroll-snap-align:start;max-width:100%;height:0;padding-bottom:62.5%;position:relative;overflow:hidden}
 .gallery img{position:absolute;top:6%;left:5%;width:90%;height:88%;max-width:none;object-fit:contain;display:block}
 .dots{display:flex;justify-content:center;gap:6px}
 .dots i{width:7px;height:7px;border-radius:50%;background:var(--line)}
@@ -122,7 +122,7 @@ header{display:flex;align-items:center;justify-content:space-between;gap:12px}
 
 .fav-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:10px}
 .fav-item{display:grid;grid-template-columns:96px 1fr;gap:12px;border:1px solid var(--line);border-radius:10px;padding:10px;align-items:start}
-.thumb{width:96px;aspect-ratio:16/10;border-radius:6px;overflow:hidden;background:var(--photo);max-width:100%;position:relative}
+.thumb{width:96px;height:60px;border-radius:6px;overflow:hidden;background:var(--photo);max-width:100%;position:relative}
 .thumb img{position:absolute;top:6%;left:5%;width:90%;height:88%;max-width:none;object-fit:contain;display:block}
 .fav-item h4{margin:0;font-family:var(--display);font-weight:800;font-size:20px;text-transform:uppercase;line-height:1}
 .fav-item p{margin:4px 0 8px;font-size:12px;color:var(--muted);font-family:var(--mono)}
@@ -207,14 +207,16 @@ const IMG = {"tesla-model-y-72439": "data:image/webp;base64,UklGRpYSAABXRUJQVlA4
 const FLEET_URL = "https://www.miles-mobility.com/de/car-sharing/fleet";
 const ABO_URL = "https://abo.miles-mobility.com/de/produkt/";
 const CARS = [
-  // --- CarSharing + Abo ---
-  { id:"modely", make:"Tesla", model:"Model Y", variant:"Long Range · AWD / RWD", availability:["sharing","abo"], images:["modely","tesla-model-y-72439"],
-    fuel:"Elektrisch", power:"220–274 kW (300–370 PS)", color:"Diamant Schwarz (Abo)", feature:"Bis zu 600 km Reichweite (WLTP)",
-    sharingPrice:"ab 1,09 €/km · 29,99 €/Tag", aboPrice:"ab 989 €/Monat", status:"Abo verfügbar ab 26.10.", abo:"tesla-model-y-72439",
-    checks:["Reichweiten-Champion: bis zu 600 km (WLTP)","Abo als Premium Long Range AWD (274 kW) oder RWD (220 kW)","5 Sitze, Automatik"] },
-  { id:"corsa", make:"Opel", model:"Corsa", variant:"Elegance (CarSharing) · Edition (Abo)", availability:["sharing","abo"], images:["corsa","opel-corsa-27098"],
+  // --- Tesla Model Y & Opel Corsa: getrennt nach Angebot ---
+  { id:"modely-sharing", make:"Tesla", model:"Model Y", variant:"Premium", availability:["sharing"], images:["modely"], fuel:"Elektrisch", seats:"5 Sitze · Automatik", feature:"Premium-Elektro-SUV", sharingPrice:"ab 1,09 €/km · 29,99 €/Tag" },
+  { id:"modely-abo", make:"Tesla", model:"Model Y", variant:"Premium Long Range · AWD / RWD", availability:["abo"], images:["tesla-model-y-72439"],
+    fuel:"Elektrisch", power:"220–274 kW (300–370 PS)", color:"Diamant Schwarz", feature:"Bis zu 600 km Reichweite (WLTP)",
+    aboPrice:"ab 989 €/Monat", status:"verfügbar ab 26.10.", abo:"tesla-model-y-72439",
+    checks:["Reichweiten-Champion: bis zu 600 km (WLTP)","AWD (274 kW) ab 1.079 €/Monat, RWD (220 kW) ab 989 €/Monat","5 Sitze, Automatik"] },
+  { id:"corsa-sharing", make:"Opel", model:"Corsa", variant:"Elegance · Kleinwagen", availability:["sharing"], images:["corsa"], fuel:"Benzin", seats:"5 Sitze · Automatik", feature:"Wendiger Kleinwagen für die Stadt", sharingPrice:"ab 0,79 €/km · 24,99 €/Tag" },
+  { id:"corsa-abo", make:"Opel", model:"Corsa", variant:"Edition", availability:["abo"], images:["opel-corsa-27098"],
     fuel:"Benzin (Mild-Hybrid)", power:"81 kW (110 PS)", color:"Weiß, Grau, Schwarz", feature:"Sparsamer Mild-Hybrid mit Automatik",
-    sharingPrice:"ab 0,79 €/km · 24,99 €/Tag", aboPrice:"ab 329 €/Monat", status:"sofort verfügbar", abo:"opel-corsa-27098",
+    aboPrice:"ab 329 €/Monat", status:"sofort verfügbar", abo:"opel-corsa-27098",
     checks:["Hybrid trifft Alltag: sparsamer Mild-Hybrid-Antrieb","Kleinwagen, 5 Sitze, Automatik"] },
 
   // --- nur CarSharing ---
@@ -256,6 +258,7 @@ const AV_LABEL = { sharing:"CarSharing", abo:"Abo" };
   const s = CARS.filter(c=>c.availability.length===1 && c.availability[0]==="sharing");
   const a = CARS.filter(c=>c.availability.length===1 && c.availability[0]==="abo");
   const both = CARS.filter(c=>c.availability.length===2);
+  s.push(...s.splice(0, Math.floor(s.length/2)));  // CarSharing-Liste versetzt starten, damit gleiche Modelle nicht direkt aufeinander folgen
   const mixed = [];
   while (s.length || a.length){ if (a.length) mixed.push(a.shift()); if (s.length) mixed.push(s.shift()); }
   both.forEach((c,i)=> mixed.splice(Math.round((i+0.5)*mixed.length/both.length) + i, 0, c));
